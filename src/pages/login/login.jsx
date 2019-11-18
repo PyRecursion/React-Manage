@@ -1,22 +1,35 @@
 import React, { Component } from 'react'
-
-
+import { Form, Icon, Input, Button, message } from 'antd';
+import { Redirect } from 'react-router-dom' 
 
 import './login.less'
-import { Form, Icon, Input, Button, Checkbox } from 'antd';
-import logo from "./images/lkpark_logo.png";
+import logo from "./images/lkpark_logo.png"
+import { reqLogin } from './../../api'
+import storageUtils from '../../utils/storageUtils.js'
+import memoryUtils from '../../utils/memoryUtils';
+
 
 
 class Login extends Component {
 
     handleSubmit = e => {
         e.preventDefault();
-        this.props.form.validateFields((err, values) => {
+        this.props.form.validateFields(async(err, values) => {
             if (!err) {
               console.log('Received values of form: ', values);
-            }
-            else{
-                alert("星系填写有误")
+              const result= await reqLogin(values.username,values.password)
+              if (result.status===0){
+                  //将user保存到local 
+                  const user = result.data
+                  storageUtils.saveUser(user)
+                  //保存到内存中
+                  memoryUtils.user=user
+                  //跳转到管理界面
+                  this.props.history.replace("/home")
+                  message.success(result.msg)
+              }
+            }else{
+                alert("信息填写有误")
             }
           });
 
@@ -42,6 +55,12 @@ class Login extends Component {
     };
 
     render() {
+        //验证用户是否以登录
+        const user=memoryUtils.user
+        if (user._id){
+            //this.props.histiory.replace('/login') //时间回调函数中进行路由跳转
+            return <Redirect to="/" />
+        }
         //const { getFieldDecorator } = this.props.form;
         const getFieldDecorator = this.props.form.getFieldDecorator; // 获取 getFieldDecorator JS属性对象，这个值的作用是帮助我们做表单封装
         return (
