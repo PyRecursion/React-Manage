@@ -16,6 +16,7 @@ import Line from '../charts/line'
 import Pie from '../charts/pie'
 
 
+
 const { Footer, Sider, Content } = Layout;
 
 export default class admin extends Component {

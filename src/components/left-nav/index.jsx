@@ -109,8 +109,10 @@ class LeftNav extends Component {
     render() {
         
         //得到当前请求的路由路径
-        const selectkey=this.props.location.pathname
-        
+        let selectkey=this.props.location.pathname
+        if (selectkey.indexOf('/product')===0){
+            selectkey='/product'
+        }
         return (
             
             <div className="left-nav">

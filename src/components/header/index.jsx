@@ -7,12 +7,11 @@ import { Modal } from 'antd';
 import storageUtils from '../../utils/storageUtils';
 import { withRouter } from 'react-router-dom';
 
-
 import menuList from './../../config/menuConfig';
 
 import {formateDate} from '../../utils/dateUtils.js'
 import { reqWeather } from '../../api';
-import { async } from 'q';
+import LinkButton from '../link-button';
 
 
 
@@ -47,7 +46,7 @@ class Header extends Component {
             if (item.key===path){
                 title=item.title
             }else if (item.children){
-                const cItem=item.children.find(cItem=>cItem.key===path)
+                const cItem=item.children.find(cItem=>path.indexOf(cItem.key)===0)
                 if(cItem){
                     title=cItem.title
                 }
@@ -87,7 +86,7 @@ class Header extends Component {
             <div className="header">
                 <div className='header-top'>
                     欢迎，{user.username}
-                    <span  onClick={this.logout}>退出</span>
+                    <LinkButton  onClick={this.logout}>退出</LinkButton>
                 </div>
                 <div className='header-bottom'>
         <div className='header-bottom-left'>{title}</div>

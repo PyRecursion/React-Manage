@@ -15,7 +15,6 @@ axios.interceptors.request.use((config) => {
   if (method.toLowerCase()==='post' && data && typeof data==='object') {
     config.data = qs.stringify(data) // {name: 'tom', pwd: '123'} ==> name=tom&pwd=123
   }
-
   return config
 })
 
@@ -30,4 +29,4 @@ axios.interceptors.response.use(response => {
     return new Promise(() => {})
   })
   
-  export default axios
+export default axios
