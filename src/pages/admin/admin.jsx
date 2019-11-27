@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Redirect, Switch, Route } from 'react-router-dom'  //重定向组件
 //import localst from '../../utils/storageUtils.js'
-import memoryUtils from '../../utils/memoryUtils.js'
+// import memoryUtils from '../../utils/memoryUtils.js'
 import { Layout } from 'antd';
 import LeftNav from './../../components/left-nav/index';
 import Header from './../../components/header/index';
@@ -15,14 +15,18 @@ import Bar from '../charts/bar'
 import Line from '../charts/line'
 import Pie from '../charts/pie'
 
+import {connect} from 'react-redux'
+
+
 
 
 const { Footer, Sider, Content } = Layout;
 
-export default class admin extends Component {
+class admin extends Component {
     render() {
         // const user=localst.getUser()
-        const user = memoryUtils.user
+        // const user = memoryUtils.user
+        const user=this.props.user
         if (!user._id) {
             //this.props.histiory.replace('/login') //时间回调函数中进行路由跳转
             return <Redirect to="/login" />
@@ -53,3 +57,9 @@ export default class admin extends Component {
         )
     }
 }
+
+
+export default connect(
+    state=>({user:state.user}),
+    {}
+)(admin)

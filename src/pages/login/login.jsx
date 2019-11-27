@@ -1,35 +1,49 @@
 import React, { Component } from 'react'
-import { Form, Icon, Input, Button, message } from 'antd';
+import { Form, Icon, Input, Button } from 'antd';
 import { Redirect } from 'react-router-dom' 
 
 import './login.less'
 import logo from "./images/lkpark_logo.png"
-import { reqLogin } from './../../api'
-import storageUtils from '../../utils/storageUtils.js'
-import memoryUtils from '../../utils/memoryUtils';
+// import { reqLogin } from './../../api'
+// import storageUtils from '../../utils/storageUtils.js'
+// import memoryUtils from '../../utils/memoryUtils';
+//redux
+import {connect} from 'react-redux'
+import { login } from '../../redux/actions';
+
+
 
 
 
 class Login extends Component {
 
+    // handleSubmit = e => {
+    //     e.preventDefault();
+    //     this.props.form.validateFields(async(err, values) => {
+    //         if (!err) {
+    //           console.log('Received values of form: ', values);
+    //           const result= await reqLogin(values.username,values.password)
+    //           if (result.status===0){
+    //               //将user保存到local 
+    //               const user = result.data
+    //               storageUtils.saveUser(user)
+    //               //保存到内存中
+    //               memoryUtils.user=user
+    //               //跳转到管理界面
+    //               this.props.history.replace("/home")
+    //               message.success(result.msg)
+    //           }
+    //         }else{
+    //             alert("信息填写有误")
+    //         }
+    //       });
+
+    // };
     handleSubmit = e => {
         e.preventDefault();
-        this.props.form.validateFields(async(err, values) => {
+        this.props.form.validateFields(async(err, {username,password}) => {
             if (!err) {
-              console.log('Received values of form: ', values);
-              const result= await reqLogin(values.username,values.password)
-              if (result.status===0){
-                  //将user保存到local 
-                  const user = result.data
-                  storageUtils.saveUser(user)
-                  //保存到内存中
-                  memoryUtils.user=user
-                  //跳转到管理界面
-                  this.props.history.replace("/home")
-                  message.success(result.msg)
-              }
-            }else{
-                alert("信息填写有误")
+                this.props.login(username,password)
             }
           });
 
@@ -56,7 +70,8 @@ class Login extends Component {
 
     render() {
         //验证用户是否以登录
-        const user=memoryUtils.user
+        // const user=memoryUtils.user
+        const user =this.props.user
         if (user._id){
             //this.props.histiory.replace('/login') //时间回调函数中进行路由跳转
             return <Redirect to="/" />
@@ -117,4 +132,9 @@ class Login extends Component {
     }
 }
 const WrappedNormalLoginForm = Form.create()(Login)//将Login函数包装 附上form属性
-export default WrappedNormalLoginForm
+export default connect(
+    state=>({
+        user:state.user
+    }),//一般属性 
+    {login}//函数属性
+)(WrappedNormalLoginForm) 

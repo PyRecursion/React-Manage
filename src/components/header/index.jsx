@@ -2,9 +2,9 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { Component } from 'react'
 import './index.less'
-import memoryUtils from '../../utils/memoryUtils'
+// import memoryUtils from '../../utils/memoryUtils'
 import { Modal } from 'antd';
-import storageUtils from '../../utils/storageUtils';
+// import storageUtils from '../../utils/storageUtils';
 import { withRouter } from 'react-router-dom';
 
 import menuList from './../../config/menuConfig';
@@ -12,7 +12,9 @@ import menuList from './../../config/menuConfig';
 import {formateDate} from '../../utils/dateUtils.js'
 import { reqWeather } from '../../api';
 import LinkButton from '../link-button';
+import { connect } from 'react-redux';
 
+import {logout} from '../../redux/actions'
 
 
 class Header extends Component {
@@ -29,9 +31,10 @@ class Header extends Component {
             title: '确认退出吗？',
             onOk:()=> {
                 console.log('OK');
-                storageUtils.removeUser()
-                memoryUtils.user = {}
-                this.props.history.replace('/login')
+                // storageUtils.removeUser()
+                // memoryUtils.user = {}
+                // this.props.history.replace('/login')
+                this.props.logout()//admin中会跳转
             },
             onCancel() {
                 console.log('Cancel');
@@ -80,8 +83,11 @@ class Header extends Component {
 
     render() {
         const {curTime,dayPictureUrl,weather}=this.state
-        const user=memoryUtils.user
-        const title=this.getTitle()
+        // const user=memoryUtils.user
+        // const title=this.getTitle()
+        const user=this.props.user
+        const title=this.props.headerTitle
+        
         return (
             <div className="header">
                 <div className='header-top'>
@@ -100,4 +106,10 @@ class Header extends Component {
         )
     }
 }
-export default withRouter(Header) 
+export default connect(
+    state=>({
+        headerTitle:state.headerTitle,
+        user:state.user
+    }),//state:总状态{}
+    {logout}
+)(withRouter(Header)) 

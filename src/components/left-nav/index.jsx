@@ -1,9 +1,12 @@
 import React, { Component } from 'react'
 import './index.less'
 import logo from './images/FCBlogo.png'
-import { Link ,withRouter} from 'react-router-dom'
+import { Link, withRouter } from 'react-router-dom'
 import { Menu, Icon } from 'antd';
 import menuList from '../../config/menuConfig.js'
+import { connect } from 'react-redux'
+import { setHeaderTitle } from '../../redux/actions';
+import memoryUtils from '../../utils/memoryUtils';
 
 
 
@@ -14,47 +17,72 @@ const { SubMenu } = Menu;
 
 
 class LeftNav extends Component {
+
+
+    hasAuth = (item) => {
+        // 得到当前用户的所有权限
+        const user = memoryUtils.user
+        const menus = user.role.menus
+        // 1. 如果当前用户是admin
+        // 2. 如果item是公开的
+        // 3. 当前用户有此item的权限
+        if (user.username === 'admin' || item.public || menus.indexOf(item.key) !== -1) {
+            return true
+        } else if (item.children) {
+            // 4. 如果当前用户有item的某个子节点的权限, 当前item也应该显示
+            const cItem = item.children.find(cItem => menus.indexOf(cItem.key) !== -1)
+            return !!cItem
+        }
+
+
+        return false
+    }
     //reduce方法
-    
-    
+
+
     getMenuNodes2 = (menuList) => {
-         //请求路径
-        const path=this.props.location.pathname
+        //请求路径
+        const path = this.props.location.pathname
         return menuList.reduce((pre, item) => {
-            if (!item.children) {
-                pre.push(
-                    <Menu.Item key={item.key}>
-                        <Link to={item.key}>
-                            <Icon type={item.icon} />
-                            <span>{item.title}</span>
-                        </Link>
-                    </Menu.Item>
-                )
-            } else {
-                /*
-                当前item的key是否是我需要的openkey
-                查找item的所有children中cItem的key，看是否有和请求的path匹配
-                */
-                const cItem=item.children.find(cItem=>cItem.key===path)
-                if(cItem){
-                    this.openkey=item.key
-                }
-                pre.push(
-                    <SubMenu
-                        key={item.key}
-                        title={
-                            <span>
+            if (this.hasAuth(item)) {
+                if (!item.children) {
+                    if (item.key === path || path.indexOf(item.key) === 0) {
+                        this.props.setHeaderTitle(item.title)
+                    }
+                    pre.push(
+                        <Menu.Item key={item.key}>
+                            <Link to={item.key} onClick={() => this.props.setHeaderTitle(item.title)}>
                                 <Icon type={item.icon} />
                                 <span>{item.title}</span>
-                            </span>
-                        }
-                    >
-                        {
-                            this.getMenuNodes2(item.children)
-                        }
-                    </SubMenu>
-                )
+                            </Link>
+                        </Menu.Item>
+                    )
+                } else {
+                    /*
+                    当前item的key是否是我需要的openkey
+                    查找item的所有children中cItem的key，看是否有和请求的path匹配
+                    */
+                    const cItem = item.children.find(cItem => cItem.key === path)
+                    if (cItem) {
+                        this.openkey = item.key
+                    }
+                    pre.push(
+                        <SubMenu
+                            key={item.key}
+                            title={
+                                <span>
+                                    <Icon type={item.icon} />
+                                    <span>{item.title}</span>
+                                </span>
+                            }
+                        >
+                            {
+                                this.getMenuNodes2(item.children)
+                            }
+                        </SubMenu>
+                    )
 
+                }
             }
             return pre
         }, [])
@@ -66,7 +94,7 @@ class LeftNav extends Component {
             if (!item.children) {
                 return (
                     <Menu.Item key={item.key}>
-                        <Link to={item.key}>
+                        <Link to={item.key} >
                             <Icon type={item.icon} />
                             <span>{item.title}</span>
                         </Link>
@@ -95,26 +123,26 @@ class LeftNav extends Component {
     第一次renders之后执行一次
     场景：执行异步任务 ，发ajax请求，启动定时器
     */
-    componentDidMount(){
+    componentDidMount() {
 
     }
     /*
     第一次渲染之前执行一次
     为第一次render做一些同步的准备
     */
-    UNSAFE_componentWillMount(){
-        this.menulist=this.getMenuNodes2(menuList)
+    componentWillMount() {
+        this.menulist = this.getMenuNodes2(menuList)
     }
 
     render() {
-        
+
         //得到当前请求的路由路径
-        let selectkey=this.props.location.pathname
-        if (selectkey.indexOf('/product')===0){
-            selectkey='/product'
+        let selectkey = this.props.location.pathname
+        if (selectkey.indexOf('/product') === 0) {
+            selectkey = '/product'
         }
         return (
-            
+
             <div className="left-nav">
                 <Link className="left-nav-header" to="/home">
                     <img src={logo} alt="logo" />
@@ -183,4 +211,7 @@ class LeftNav extends Component {
 使其具有属性：history /location/match
 使其可以操作相关语法
 */
-export default withRouter(LeftNav)
+export default connect(
+    state => ({}),
+    { setHeaderTitle }
+)(withRouter(LeftNav))
